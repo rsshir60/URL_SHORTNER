@@ -1,6 +1,6 @@
 # project4
 
-## Lithium
+## URL_SHORTNER
  
 ## Scalable URL Shortner Project Requirement
 ## Phase I
