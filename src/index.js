@@ -1,19 +1,38 @@
-const express = require("express");
-const route = require("../router/router");
-const mongoose = require("mongoose");
-const app = express();
-var cors = require("cors");
-app.use(cors());
-app.use(express.json());
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config({path: './config.env'});
+const mongoose = require('mongoose');
+const AppError = require('./error/AppError');
+const router = require('./routes/route');
+const { globalErrorHandler } = require('./error/globalErrorHandler');
 
+const app = express();
+app.use(express.json());
+app.use(cors());
+//MONGOOSE CONNECTION
+mongoose.set('strictQuery',false);
 mongoose
-  .connect(
-    "mongodb+srv://DeeptirthaMukherjee:QYKI3k8QSKC4I7FZ@cluster1.khatgm1.mongodb.net/project4-db?retryWrites=true&w=majority",
-    { UseNewUrlParser: true }
-  )
-  .then(()=> console.log("MongoDB is connected"))
-  .catch((err) =>console.log(err.message));
-  app.use("/",route);
-  app.listen(process.env.PORT ||  3001,function(){
-  console.log("listining at " +(process.env.PORT || 3001))
-});
+.connect(process.env.MONGODB)
+.then((conn) => {
+    console.log('MongoDB is connect successfully...!');
+
+})
+.catch((err) => console.log(err));
+
+//TRANSFERRING ALL REQUEST TO ROUTER
+app.use('/' , router);
+
+//ALL OTHER ROUTE HANDLER
+app.all('*', (req, res, next) => {
+    return next(
+      new AppError(`The url ${req.originalUrl} not found on server`, 404)
+    );
+  });
+  //GLOBAL ERROR HANDLER
+  app.use(globalErrorHandler);
+
+  const port = process.env.PORT || 3000;
+  
+  app.listen(port, () => {
+    console.log(`Server started on port ${port}`);
+  });
