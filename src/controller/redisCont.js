@@ -14,11 +14,11 @@ const EX_TIME = Date.now();
 const client = redis.createClient({
     socket: {
         //HOST:'127.0.0.1'
-        host: 'redis-11206.c281.us-east-1-2.ec2.cloud.redislabs.com',
-        port: 11206,
+        host: process.env.REDIS_HOST_REMOTE,
+        port: process.env.REDIS_PORT_REMOTE,
 
     },
-    password: 'QMbNkgvm9YWCJe6BE2ddGsMIimdWFyEH'
+    password:  process.env.REDIS_PASSWORD_REMOTE,
 });
 
 client
@@ -30,12 +30,12 @@ console.log('Redis connection Success...');
     console.log('Redis connection Error', err);
 });
 //FETCHING FROM CATCH
-exports.getFromCatche = async (key) => {
+exports.getFromCache = async (key) => {
     const data = await client.get(key);
-    return data
+    return data;
 };
 //INSERTING TO CATCH
-exports.addToCatche = async (data) => {
+exports.addToCache = async (data) => {
     await client.setEx(data.urlCode, EX_TIME, data.longUrl);
     await client.SETEX(data.longUrl, EX_TIME, JSON.stringify(data));
 };
